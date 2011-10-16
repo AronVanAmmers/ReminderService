@@ -25,7 +25,12 @@ class MySqlStorage extends StorageBase
 		$filterString = MySqlStorage::FilterToSql($filter);
 		$query = "SELECT * FROM `$dataSource` WHERE $filterString";
 		$result = mysql_query($query);
-		return mysql_fetch_array($result);
+		$resultArray = array();
+		while($row = mysql_fetch_array($result))
+		{
+			$resultArray[] = $row;
+		}
+		return $resultArray;
 	}
 
 	public function SaveArray($dataSource, $dataArray, $filter = null)
@@ -43,12 +48,12 @@ class MySqlStorage extends StorageBase
 			$query = "UPDATE `$dataSource` SET ";
 
 			$setStrings = array();
-				
+
 			foreach($dataArray as $fieldName => $value)
 			{
 				$setStrings [] = MySqlStorage::ToSqlIdentifier($fieldName) . "=" . MySqlStorage::ToSqlValue($value);
 			}
-				
+
 			$query .= implode(",", $setStrings);
 
 			$query .= " WHERE " . MySqlStorage::FilterToSql($filter);
