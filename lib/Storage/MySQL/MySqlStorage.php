@@ -1,7 +1,5 @@
 <?php
 
-require_once("StorageBase.php");
-
 class MySqlStorage extends StorageBase
 {
 	var $_Connection;

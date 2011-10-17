@@ -1,8 +1,5 @@
 <?php
 
-require_once("ControllerBase.php");
-require_once("UUID.php");
-
 class UserController extends ControllerBase
 {
 	function __construct()

@@ -1,8 +1,5 @@
 <?php
 
-require_once 'sdb.php';
-require_once("StorageBase.php");
-
 class SimpleDbStorage extends StorageBase
 {
 	/**

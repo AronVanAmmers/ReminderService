@@ -1,7 +1,5 @@
 <?php
 
-require_once("Storage/StorageTools.php");
-
 class Tools
 {
 	public static function CastObjectArray(array $arrayOfObjects, $className)

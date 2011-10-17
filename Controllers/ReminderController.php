@@ -1,8 +1,5 @@
 <?php
 
-require_once("ControllerBase.php");
-require_once("UserController.php");
-
 class ReminderController extends ControllerBase
 {
 	/**
