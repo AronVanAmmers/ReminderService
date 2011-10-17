@@ -35,7 +35,7 @@ class UserController extends ControllerBase
 		$user = array(
 				"ID" => UUID::v4(),
 				"UserName" => $userName,
-			);
+		);
 			
 		$this->SaveArray($user);
 		return $user;
@@ -47,7 +47,9 @@ class UserController extends ControllerBase
 	 */
 	public function GetByName($userName)
 	{
-		return $this->LoadArray(array("UserName" => $userName));
+		$users = $this->LoadArray(array("UserName" => $userName));
+		if(count($users) == 1) return $users[0];
+		return null;
 	}
 
 	/**
