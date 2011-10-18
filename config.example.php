@@ -5,19 +5,19 @@
 $RestServerMode = 'debug'; // 'debug' or 'production'
 
 // 'MySQL' or 'SimpleDB'
-SafeDefine('StorageMethod', 'MySQL');
-//SafeDefine('StorageMethod', 'SimpleDB');
+Tools::SafeDefine('StorageMethod', 'MySQL');
+//Tools::SafeDefine('StorageMethod', 'SimpleDB');
 
 // MySQL configuration
-//SafeDefine('MySqlDatabaseHostName', 'mysql.cloudified.net');
-SafeDefine('MySqlDatabaseHostName', 'localhost');
-SafeDefine('MySqlDatabaseName', 'restserver-1.01');
-SafeDefine('MySqlDatabaseUserName', 'restserver');
-SafeDefine('MySqlDatabasePassword', '');
+//Tools::SafeDefine('MySqlDatabaseHostName', 'mysql.cloudified.net');
+Tools::SafeDefine('MySqlDatabaseHostName', 'localhost');
+Tools::SafeDefine('MySqlDatabaseName', 'restserver-1.01');
+Tools::SafeDefine('MySqlDatabaseUserName', 'restserver');
+Tools::SafeDefine('MySqlDatabasePassword', '');
 
 // SimpleDB configuration
-SafeDefine('SimpleDbAwsAccessKey', '');  
-SafeDefine('SimpleDbAwsSecretKey', '');
-SafeDefine('SimpleDbDomainPrefix', 'RestServer');  
+Tools::SafeDefine('SimpleDbAwsAccessKey', '');  
+Tools::SafeDefine('SimpleDbAwsSecretKey', '');
+Tools::SafeDefine('SimpleDbDomainPrefix', 'RestServer');  
 
 /** End configuration **/

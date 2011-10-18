@@ -69,7 +69,7 @@ class ReminderController extends ControllerBase
 	{
 		$this->_UserController->Login($userName);
 
-		$reminderData = $this->LoadArray(array("UserID" => $this->_UserController->Current["ID"]) );
+		$reminderData = $this->LoadArray($this->GetUserIDFilter());
 
 		if(is_array($reminderData))
 		{
@@ -78,10 +78,32 @@ class ReminderController extends ControllerBase
 				// The $reminderData contains the reminders as JSON. Deserialize and return them.
 				return json_decode($reminderData["ReminderJson"]);
 			}
-			return $reminderData;
+			else
+			{
+				// Remove the database ID's.
+				foreach($reminderData as $key => $reminder)
+				{
+					StorageBase::CleanArrayForSaving($reminder);
+					$reminderData[$key] = $reminder;
+				}
+				
+				return $reminderData;
+			}
 		}
 
 		return null;
+	}
+
+	private function GetUserIDFilter()
+	{
+		$array = array();
+		$array["UserID"] = $this->_UserController->Current->ID;
+		return $array;
+	}
+
+	private function SetUserID($object)
+	{
+		$object->UserID = $this->_UserController->Current->ID;
 	}
 
 	/**
@@ -91,15 +113,45 @@ class ReminderController extends ControllerBase
 	 */
 	public function SaveReminders($userName, $data)
 	{
-		$this->EnsureStorage();
+		$this->_UserController->Login($userName);
 
 		// The data arrives as an array of untyped objects. Cast them to our own class.
 		$reminders = Tools::CastObjectArray($data, "Reminder");
 
-		// We have the data as an array of Reminder objects. Now do whatever we want with it.
-		$result = $this->_Storage->SaveArray(
-		array("UserName"=>$userName),
-		array("UserName"=>$userName, "ReminderJson" => json_encode($reminders)));
+		// Link the current UserID
+		foreach(array_keys($reminders) as $k)
+		{
+			$reminder = $reminders[$k];
+			$this->SetUserID($reminder);
+		}
+
+		// Delete any items in the database which were not in the array.
+		// Get all current items to remember which ones weren't saved.
+		$currentItems = $this->LoadReminders($userName);
+
+		$result = $this->SaveObjectArray($reminders);
+
+		if($result)
+		{
+			foreach($currentItems as $itemBeforeSave)
+			{
+				$wasSaved = false;
+
+				foreach($reminders as $savedItem)
+				{
+					if($savedItem->ID == null) continue;
+
+					if($savedItem->ID == $itemBeforeSave["ID"])
+					{
+						$wasSaved = true;
+						break;
+					}
+				}
+					
+				if(!$wasSaved)
+				$this->DeleteObject($itemBeforeSave);
+			}
+		}
 
 		return $result;
 	}

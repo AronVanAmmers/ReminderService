@@ -1,7 +1,6 @@
 <?php
 
-class User
+class User extends ModelObject
 {
-	var $ID;	
 	var $UserName;
 }

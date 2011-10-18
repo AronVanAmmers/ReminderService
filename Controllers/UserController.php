@@ -9,9 +9,9 @@ class UserController extends ControllerBase
 	}
 
 	/**
-	 * Data of the currently logged in user.
+	 * The currently logged in user.
 	 *
-	 * @var array
+	 * @var User
 	 */
 	public $Current;
 
@@ -29,12 +29,10 @@ class UserController extends ControllerBase
 
 	private function CreateUser($userName)
 	{
-		$user = array(
-				"ID" => UUID::v4(),
-				"UserName" => $userName,
-		);
+		$user = new User();
+		$user->UserName = $userName;
 			
-		$this->SaveArray($user);
+		$this->SaveObject($user);
 		return $user;
 	}
 
@@ -44,9 +42,8 @@ class UserController extends ControllerBase
 	 */
 	public function GetByName($userName)
 	{
-		$users = $this->LoadArray(array("UserName" => $userName));
-		if(count($users) == 1) return $users[0];
-		return null;
+		$users = $this->LoadObjectArray(array("UserName" => $userName));
+		return $this->GetSingleItem($users);
 	}
 
 	/**
@@ -55,6 +52,7 @@ class UserController extends ControllerBase
 	 */
 	public function GetByID($ID)
 	{
-		return $this->LoadArray(array("ID" => $ID));
+		$users = $this->LoadObjectArray(array("ID" => $ID));
+		return $this->GetSingleItem($users);
 	}
 }

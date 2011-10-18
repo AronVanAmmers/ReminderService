@@ -71,7 +71,7 @@ class SimpleDbStorage extends StorageBase
 		return $reminders;
 	}
 
-	public function SaveArray($dataSource, $dataArray, $filter=null)
+	public function SaveArray($dataSource, $dataArray)
 	{
 	}
 

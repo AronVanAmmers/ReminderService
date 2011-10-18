@@ -4,18 +4,18 @@ class StorageBase{
 	/**
 	 * Ensures that the specified domain is created. Only supported by data sources
 	 * that allow creating domains or tables.
-	 * 
+	 *
 	 * @param string $domain
 	 * @return bool
 	 */
 	public function EnsureDomain($domain)
 	{
-		return true;	
+		return true;
 	}
-	
+
 	/**
 	 * Ensures that the specified domain has the specified attribute.
-	 * 
+	 *
 	 * @param string $domain
 	 * @param string $attributeName
 	 * @param string $dataType
@@ -24,7 +24,7 @@ class StorageBase{
 	{
 		return true;
 	}
-	
+
 	/**
 	 * Loads an array of data from the specified domain/table.
 	 *
@@ -34,14 +34,103 @@ class StorageBase{
 	public function LoadArray($domain, $filter){}
 
 	/**
+	 * Loads an array of objects from the specified domain/table. The objects will be casted to
+	 * the class with the specified name.
+	 *
+	 * @param string $domain
+	 * @param array $filter
+	 * @param string $className
+	 */
+	public function LoadObjectArray($domain, $filter, $className)
+	{
+		$array = $this->LoadArray($domain, $filter);
+
+		if(is_array($array)) return Tools::CastObjectArray($array, $className);
+
+		return null;
+	}
+
+	/**
 	 * Saves an array of data to the specified domain/table.
 	 *
 	 * @param string $domain
 	 * @param array $filter
 	 * @param array $data
 	 */
-	public function SaveArray($domain, $data, $filter = null)
+	public function SaveArray($domain, $data)
 	{
-
 	}
+
+	/**
+	 * Deletes an array of data to the specified domain/table.
+	 *
+	 * @param string $domain
+	 * @param array $filter
+	 * @param array $data
+	 */
+	public function DeleteArray($domain, $data)
+	{
+	}
+	
+	
+	/**
+	 * Saves a single object of data to the specified domain/table.
+	 *
+	 * @param string $domain
+	 * @param array $filter
+	 * @param array $object
+	 */
+	public function SaveObject($domain, $object)
+	{
+		$array = Tools::ObjectToArray($object);
+		self::CleanArrayForSaving($array);
+		return $this->SaveArray($domain, $array);
+	}
+	
+	/**
+	 * Deletes a single object of data to the specified domain/table.
+	 *
+	 * @param string $domain
+	 * @param array $object
+	 */
+	public function DeleteObject($domain, $object)
+	{
+		$array = Tools::ObjectToArray($object);
+		self::CleanArrayForSaving($array);
+		return $this->DeleteArray($domain, $array);
+	}
+	
+	
+	public static function CleanArrayForSaving(&$array)
+	{
+		foreach($array as $key => $value)
+		if(is_numeric($key))
+		unset($array[$key]);
+	}
+
+	public static function CleanObjectForSaving($object)
+	{
+		foreach($object as $key => $value)
+		if(is_numeric($key))
+		unset($object->$key);
+	}
+	
+	/**
+	 * Saves an array of data to the specified domain/table.
+	 *
+	 * @param string $domain
+	 * @param array $filter
+	 * @param array $arrayOfObjects
+	 */
+	public function SaveObjectArray($domain, $arrayOfObjects)
+	{
+		$result = true;
+
+		foreach($arrayOfObjects as $key => $object)
+		$result = $result && $this->SaveObject($domain, $object);
+
+		return $result;
+	}
+
+
 }

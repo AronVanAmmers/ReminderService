@@ -1,8 +1,8 @@
 <?php
 
-class Reminder
+class Reminder extends ModelObject
 {
-	var $ID;	
+	var $UserID;	
 	var $Title;
 	var $Location;
 }

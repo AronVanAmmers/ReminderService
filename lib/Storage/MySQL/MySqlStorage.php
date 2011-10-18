@@ -20,7 +20,7 @@ class MySqlStorage extends StorageBase
 	{
 		if(!$this->EnsureConnection()) return false;
 
-		$filterString = MySqlStorage::FilterToSql($filter);
+		$filterString = self::FilterToSql($filter);
 		$query = "SELECT * FROM `$dataSource` WHERE $filterString";
 		$result = mysql_query($query);
 		$resultArray = array();
@@ -31,47 +31,89 @@ class MySqlStorage extends StorageBase
 		return $resultArray;
 	}
 
-	public function SaveArray($dataSource, $dataArray, $filter = null)
+	public function SaveArray($dataSource, $dataArray)
 	{
 		if(!$this->EnsureConnection()) return false;
 
-		if($filter !== null)
-		$currentArray = $this->LoadArray($dataSource, $filter);
+		StorageBase::CleanArrayForSaving($dataArray);
 
 		$query = "";
 
-		if(is_array($currentArray))
+		// Is the ID set? Then update a current record.
+		if(isset($dataArray["ID"]) && $dataArray["ID"] != null)
 		{
-			// Update current record
-			$query = "UPDATE `$dataSource` SET ";
-
-			$setStrings = array();
-
-			foreach($dataArray as $fieldName => $value)
-			{
-				$setStrings [] = MySqlStorage::ToSqlIdentifier($fieldName) . "=" . MySqlStorage::ToSqlValue($value);
-			}
-
-			$query .= implode(",", $setStrings);
-
-			$query .= " WHERE " . MySqlStorage::FilterToSql($filter);
+			$query = self::CreateUpdate($dataSource, $dataArray);
 		}
 		else
 		{
 			// Insert new record
-			$query = MySqlStorage::CreateInsert($dataSource, $dataArray);
+			$query = self::CreateInsert($dataSource, $dataArray);
 		}
 
 		$result = mysql_query($query);
 		$numRows = mysql_affected_rows($this->_Connection);
-		return $numRows==1;
+		return $result && ($numRows==1 || $numRows == 0);
 	}
 
-	function CreateInsert($dataSource, $dataArray) {
+	public function DeleteArray($dataSource, $dataArray)
+	{
+		if(!$this->EnsureConnection()) return false;
+
+		StorageBase::CleanArrayForSaving($dataArray);
+
+		$query = "";
+
+		// No ID set? Can't delete.
+		if(!isset($dataArray["ID"]) || $dataArray["ID"] == null || $dataArray["ID"] == "")
+		return false;
+
+		$query = self::CreateDelete($dataSource, $dataArray);
+
+		$result = mysql_query($query);
+		$numRows = mysql_affected_rows($this->_Connection);
+		return $result && ($numRows==1 || $numRows == 0);
+	}
+
+	function CreateInsert($dataSource, array $dataArray) {
+		// Generate a new ID.
+		$dataArray["ID"] = UUID::v4();
+		
 		$values = array_map('mysql_real_escape_string', array_values($dataArray));
 		$keys = array_keys($dataArray);
 			
 		return 'INSERT INTO `'.$dataSource.'` (`'.implode('`,`', $keys).'`) VALUES (\''.implode('\',\'', $values).'\')';
+	}
+
+	function CreateUpdate($dataSource, array $dataArray)
+	{
+		$query = "UPDATE `$dataSource` SET ";
+
+		$setStrings = array();
+
+		foreach($dataArray as $fieldName => $value)
+		if($fieldName != "ID")
+		$setStrings[] = self::ToSqlIdentifier($fieldName) . "=" . self::ToSqlValue($value);
+
+		$query .= implode(",", $setStrings);
+
+		$query .= " WHERE ";
+			
+		$filter["ID"] = $dataArray["ID"];
+
+		$query .= self::FilterToSql($filter);
+		return $query;
+	}
+
+	function CreateDelete($dataSource, array $dataArray)
+	{
+		$query = "DELETE FROM " . self::ToSqlIdentifier($dataSource);
+
+		$query .= " WHERE ";
+			
+		$filter["ID"] = $dataArray["ID"];
+
+		$query .= self::FilterToSql($filter);
+		return $query;
 	}
 
 	public static function ToSqlValue($value)
@@ -90,7 +132,7 @@ class MySqlStorage extends StorageBase
 
 		foreach($filter as $field => $value)
 		{
-			$filterString .= " AND `$field`='". mysql_real_escape_string($value). "'";
+			$filterString .= " AND ". self::ToSqlIdentifier($field) . "=" . self::ToSqlValue($value);
 		}
 
 		return $filterString;

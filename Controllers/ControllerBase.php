@@ -40,9 +40,42 @@ class ControllerBase {
 		return $this->_Storage->LoadArray($this->_Domain, $filter);
 	}
 
-	function SaveArray($data, $filter = null)
+	function LoadObjectArray($filter, $className = null)
 	{
-		return $this->_Storage->SaveArray($this->_Domain, $data, $filter);
+		if($className == null) $className = $this->_Domain;
+		return $this->_Storage->LoadObjectArray($this->_Domain, $filter, $className);
+	}
+	
+	function SaveArray($data)
+	{
+		return $this->_Storage->SaveArray($this->_Domain, $data);
+	}
+
+	function SaveObject($object)
+	{
+		return $this->_Storage->SaveObject($this->_Domain, $object);
+	}
+
+	function DeleteArray($data)
+	{
+		return $this->_Storage->DeleteArray($this->_Domain, $data);
+	}
+	
+	function DeleteObject($object)
+	{
+		return $this->_Storage->DeleteObject($this->_Domain, $object);
+	}	
+	
+	function SaveObjectArray($arrayOfObjects)
+	{
+		return $this->_Storage->SaveObjectArray($this->_Domain, $arrayOfObjects);
+	}	
+	
+	function GetSingleItem($array)
+	{
+		if(!is_array($array)) return null;
+		if(count($array) == 1) return $array[0];
+		return null;		
 	}
 
 	/**
