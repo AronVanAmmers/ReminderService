@@ -1,6 +1,6 @@
 <?php
 
-class MySqlStorage extends StorageBase
+class MySqlStorage extends SqlStorageBase
 {
 	var $_Connection;
 
@@ -20,8 +20,8 @@ class MySqlStorage extends StorageBase
 	{
 		if(!$this->EnsureConnection()) return false;
 
-		$filterString = self::FilterToSql($filter);
-		$query = "SELECT * FROM `$dataSource` WHERE $filterString";
+		$query = self::CreateSelect($dataSource, $filter);
+		
 		$result = mysql_query($query);
 		$resultArray = array();
 		while($row = mysql_fetch_array($result))
@@ -74,17 +74,17 @@ class MySqlStorage extends StorageBase
 		return $result && ($numRows==1 || $numRows == 0);
 	}
 
-	function CreateInsert($dataSource, array $dataArray) {
+	public static function CreateInsert($dataSource, array $dataArray) {
 		// Generate a new ID.
 		$dataArray["ID"] = UUID::v4();
-		
+
 		$values = array_map('mysql_real_escape_string', array_values($dataArray));
 		$keys = array_keys($dataArray);
 			
 		return 'INSERT INTO `'.$dataSource.'` (`'.implode('`,`', $keys).'`) VALUES (\''.implode('\',\'', $values).'\')';
 	}
 
-	function CreateUpdate($dataSource, array $dataArray)
+	public static function CreateUpdate($dataSource, array $dataArray)
 	{
 		$query = "UPDATE `$dataSource` SET ";
 
@@ -104,7 +104,7 @@ class MySqlStorage extends StorageBase
 		return $query;
 	}
 
-	function CreateDelete($dataSource, array $dataArray)
+	public static function CreateDelete($dataSource, array $dataArray)
 	{
 		$query = "DELETE FROM " . self::ToSqlIdentifier($dataSource);
 
@@ -116,26 +116,5 @@ class MySqlStorage extends StorageBase
 		return $query;
 	}
 
-	public static function ToSqlValue($value)
-	{
-		return "'" . mysql_real_escape_string($value) . "'";
-	}
-
-	public static function ToSqlIdentifier($identifier)
-	{
-		return "`$identifier`";
-	}
-
-	private static function FilterToSql(array $filter)
-	{
-		$filterString = "1=1";
-
-		foreach($filter as $field => $value)
-		{
-			$filterString .= " AND ". self::ToSqlIdentifier($field) . "=" . self::ToSqlValue($value);
-		}
-
-		return $filterString;
-	}
 
 }

@@ -13,7 +13,7 @@ class StorageTools {
 				$storage = new SimpleDbStorage();
 				if(defined('SimpleDbDomainPrefix'))
 				{
-					$storage->_DomainPrefix = SimpleDbDomainPrefix;
+					$storage->DomainPrefix = SimpleDbDomainPrefix;
 				}
 				return $storage;
 				break;

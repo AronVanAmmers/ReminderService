@@ -1,6 +1,6 @@
 <?php
 
-class SimpleDbStorage extends StorageBase
+class SimpleDbStorage extends SqlStorageBase
 {
 	/**
 	 * Prefix used for all domain names.
@@ -14,7 +14,7 @@ class SimpleDbStorage extends StorageBase
 	 * @var SimpleDB
 	 */
 	var $_SimpleDB;
-
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see lib/Storage/StorageBase::EnsureDomain()
@@ -28,24 +28,26 @@ class SimpleDbStorage extends StorageBase
 
 	function GetFullDomainName($domainName)
 	{
-		$fullDomain;
+		$fullDomain = '';
 		if($this->DomainPrefix !== null)
 		$fullDomain .= $this->DomainPrefix;
 		$fullDomain .= $domainName;
+		return $fullDomain;		
 	}
 	
 	function EnsureConnection()
 	{
 		if($this->_SimpleDB === null)
 		{
-			$simpleDb = new SimpleDB();
-			$simpleDb->setAuth(SimpleDbAwsAccessKey, SimpleDbAwsSecretKey);
+			$this->_SimpleDB = new SimpleDB(SimpleDbAwsAccessKey, SimpleDbAwsSecretKey, SimpleDbHost);
 		}
 		return true;
 	}
 
 	public function LoadArray($dataSource, $filter)
 	{
+		$result = $this->_SimpleDB->select($domain, $select);
+		
 		// Demo data
 		// TODO: replace with real SimpleDB call
 		$reminders = array();
@@ -73,6 +75,7 @@ class SimpleDbStorage extends StorageBase
 
 	public function SaveArray($dataSource, $dataArray)
 	{
+	
 	}
 
 }

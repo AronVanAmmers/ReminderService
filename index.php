@@ -18,6 +18,7 @@ require_once 'Tools.php';
 require_once 'UUID.php';
 require_once 'RestServer.php';
 require_once 'StorageBase.php';
+require_once 'SqlStorageBase.php';
 require_once 'StorageTools.php';
 require_once 'MySqlStorage.php';
 require_once 'SimpleDbStorage.php';

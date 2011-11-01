@@ -19,5 +19,8 @@ Tools::SafeDefine('MySqlDatabasePassword', '');
 Tools::SafeDefine('SimpleDbAwsAccessKey', '');  
 Tools::SafeDefine('SimpleDbAwsSecretKey', '');
 Tools::SafeDefine('SimpleDbDomainPrefix', 'RestServer');  
+// Set the host to choose the AWS region.
+// See: http://docs.amazonwebservices.com/general/latest/gr/index.html?rande.html#sdb_region
+Tools::SafeDefine('SimpleDbHost', 'sdb.eu-west-1.amazonaws.com' );
 
 /** End configuration **/
