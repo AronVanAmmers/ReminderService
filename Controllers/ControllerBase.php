@@ -74,8 +74,8 @@ class ControllerBase {
 	function GetSingleItem($array)
 	{
 		if(!is_array($array)) return null;
-		if(count($array) == 1) return $array[0];
-		return null;		
+		$k = array_keys($array);
+		return $array[$k[0]];
 	}
 
 	/**

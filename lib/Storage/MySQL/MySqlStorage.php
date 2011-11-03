@@ -64,9 +64,9 @@ class MySqlStorage extends SqlStorageBase
 		$query = "";
 
 		// No ID set? Can't delete.
-		if(!isset($dataArray["ID"]) || $dataArray["ID"] == null || $dataArray["ID"] == "")
+		if(!self::ContainsID($dataArray))
 		return false;
-
+		
 		$query = self::CreateDelete($dataSource, $dataArray);
 
 		$result = mysql_query($query);
@@ -114,6 +114,11 @@ class MySqlStorage extends SqlStorageBase
 
 		$query .= self::FilterToSql($filter);
 		return $query;
+	}
+	
+	public static function ToSqlValue($value)
+	{
+		return "'" . mysql_real_escape_string($value) . "'";
 	}
 
 

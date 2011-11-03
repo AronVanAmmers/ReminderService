@@ -16,7 +16,7 @@ class SqlStorageBase extends StorageBase
 
 	public static function ToSqlValue($value)
 	{
-		return "'" . mysql_real_escape_string($value) . "'";
+		return "'" . addslashes($value) . "'";
 	}
 
 	public static function ToSqlIdentifier($identifier)
@@ -26,13 +26,15 @@ class SqlStorageBase extends StorageBase
 
 	protected static function FilterToSql(array $filter)
 	{
-		$filterString = "1=1";
-
+		$filterStrings = array();
+		
 		foreach($filter as $field => $value)
 		{
-			$filterString .= " AND ". self::ToSqlIdentifier($field) . "=" . self::ToSqlValue($value);
+			$filterStrings[] = self::ToSqlIdentifier($field) . "=" . self::ToSqlValue($value);
 		}
-
+		
+		$filterString = implode(" AND ", $filterStrings);
+		
 		return $filterString;
 	}
 }

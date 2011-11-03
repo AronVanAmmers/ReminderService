@@ -31,7 +31,7 @@ class StorageBase{
 	 * @param string $domain
 	 * @param array $filter
 	 */
-	public function LoadArray($domain, $filter){}
+	public function LoadArray($domain, array $filter){}
 
 	/**
 	 * Loads an array of objects from the specified domain/table. The objects will be casted to
@@ -41,7 +41,7 @@ class StorageBase{
 	 * @param array $filter
 	 * @param string $className
 	 */
-	public function LoadObjectArray($domain, $filter, $className)
+	public function LoadObjectArray($domain, array $filter, $className)
 	{
 		$array = $this->LoadArray($domain, $filter);
 
@@ -71,8 +71,8 @@ class StorageBase{
 	public function DeleteArray($domain, $data)
 	{
 	}
-	
-	
+
+
 	/**
 	 * Saves a single object of data to the specified domain/table.
 	 *
@@ -86,7 +86,7 @@ class StorageBase{
 		self::CleanArrayForSaving($array);
 		return $this->SaveArray($domain, $array);
 	}
-	
+
 	/**
 	 * Deletes a single object of data to the specified domain/table.
 	 *
@@ -99,22 +99,37 @@ class StorageBase{
 		self::CleanArrayForSaving($array);
 		return $this->DeleteArray($domain, $array);
 	}
-	
-	
-	public static function CleanArrayForSaving(&$array)
+
+	/**
+	 * Removes numeric keys from an array which can created by e.g. mysql_fetch_array.
+	 *  
+	 * @param array &$array
+	 */
+	public static function CleanArrayForSaving(array &$array)
 	{
 		foreach($array as $key => $value)
 		if(is_numeric($key))
 		unset($array[$key]);
 	}
 
+	/**
+	 * Removes numeric keys from an object which can created by e.g. mysql_fetch_array.
+	 *  
+	 * @param ModelObject $object
+	 */
 	public static function CleanObjectForSaving($object)
 	{
 		foreach($object as $key => $value)
 		if(is_numeric($key))
 		unset($object->$key);
 	}
-	
+
+	public static function ContainsID($dataArray)
+	{
+		return array_key_exists("ID", $dataArray)
+		&& $dataArray["ID"] != null;
+	}
+
 	/**
 	 * Saves an array of data to the specified domain/table.
 	 *
@@ -131,6 +146,5 @@ class StorageBase{
 
 		return $result;
 	}
-
 
 }

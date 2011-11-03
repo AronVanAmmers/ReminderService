@@ -86,7 +86,7 @@ class ReminderController extends ControllerBase
 					StorageBase::CleanArrayForSaving($reminder);
 					$reminderData[$key] = $reminder;
 				}
-				
+
 				return $reminderData;
 			}
 		}
@@ -133,23 +133,25 @@ class ReminderController extends ControllerBase
 
 		if($result)
 		{
-			foreach($currentItems as $itemBeforeSave)
+			if($currentItems != null)
 			{
-				$wasSaved = false;
-
-				foreach($reminders as $savedItem)
+				foreach($currentItems as $itemBeforeSave)
 				{
-					if($savedItem->ID == null) continue;
+					$wasSaved = false;
 
-					if($savedItem->ID == $itemBeforeSave["ID"])
+					foreach($reminders as $savedItem)
 					{
-						$wasSaved = true;
-						break;
+						if($savedItem->ID == null) continue;
+
+						if($savedItem->ID == $itemBeforeSave["ID"])
+						{
+							$wasSaved = true;
+							break;
+						}
 					}
+						
+					if(!$wasSaved) $this->DeleteObject($itemBeforeSave);
 				}
-					
-				if(!$wasSaved)
-				$this->DeleteObject($itemBeforeSave);
 			}
 		}
 
