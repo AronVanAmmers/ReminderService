@@ -16,10 +16,8 @@ class MySqlStorage extends SqlStorageBase
 		return true;
 	}
 
-	public function LoadArray($dataSource, $filter)
+	public function LoadArray($dataSource, array $filter)
 	{
-		if(!$this->EnsureConnection()) return false;
-
 		$query = self::CreateSelect($dataSource, $filter);
 		
 		$result = mysql_query($query);
@@ -31,22 +29,20 @@ class MySqlStorage extends SqlStorageBase
 		return $resultArray;
 	}
 
-	public function SaveArray($dataSource, $dataArray)
+	public function SaveArray($dataSource, array $dataArray)
 	{
-		if(!$this->EnsureConnection()) return false;
-
 		StorageBase::CleanArrayForSaving($dataArray);
 
 		$query = "";
 
-		// Is the ID set? Then update a current record.
-		if(isset($dataArray["ID"]) && $dataArray["ID"] != null)
+		// Is the ID set and does the record exist? Then update a current record.
+		if($this->ItemExists($dataSource, $dataArray))
 		{
 			$query = self::CreateUpdate($dataSource, $dataArray);
 		}
 		else
 		{
-			// Insert new record
+			// New item, so insert new record
 			$query = self::CreateInsert($dataSource, $dataArray);
 		}
 
@@ -54,11 +50,21 @@ class MySqlStorage extends SqlStorageBase
 		$numRows = mysql_affected_rows($this->_Connection);
 		return $result && ($numRows==1 || $numRows == 0);
 	}
-
-	public function DeleteArray($dataSource, $dataArray)
+	
+	public function ItemExists($dataSource, array $dataArray)
 	{
-		if(!$this->EnsureConnection()) return false;
+		if(!self::ContainsID($dataArray)) return false;
+		$id = $dataArray["ID"];
+		
+		$filter = array("ID" => $id);
+		
+		$currentArray = $this->LoadArray($dataSource, $dataArray);
+		
+		return is_array($currentArray) && count($currentArray) > 0;
+	}
 
+	public function DeleteArray($dataSource, array $dataArray)
+	{
 		StorageBase::CleanArrayForSaving($dataArray);
 
 		$query = "";
